@@ -31,5 +31,4 @@ void loop() {
   // DHT11 sampling rate is 1HZ.
   delay(1000);
 }
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help
+
