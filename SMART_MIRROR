@@ -1,0 +1,102 @@
+def generate_qr():
+
+    if other_color == "white":
+        url = 'http://s3.amazonaws.com/mycolorfuldresses/white_dresses.jpg'
+    if other_color == "yellow":
+        url = 'http://s3.amazonaws.com/mycolorfuldresses/yellow_dress.jpg'
+    if other_color == "green":
+        url = 'http://s3.amazonaws.com/mycolorfuldresses/green_neon.jpg'
+    else:
+        url = 'http://s3.amazonaws.com/mycolorfuldresses/white_dresses.jpg'
+        
+   
+    bc = pyqrcode.create(url)
+    bc.png('code.png', scale=6, module_color=[0, 0, 0, 128], background=[0xff, 0xff, 0xcc])
+    bc.show()
+
+    
+    
+    
+
+def colorRange(c , variant):
+    variant
+    num = [c - variant, c + variant]
+    if num[0] < 0:
+        num[0] = 0
+    if num[1] > 255:
+        num[1] = 255
+    return num
+
+def change_color(currColor, newColor):
+    global qrgen
+    global colorVariant
+    time.sleep(3)
+    subprocess.call('raspistill -n -w %s -h %s -o testimage.png' % (640, 480), shell=True)
+    
+    img2 = Image('testimage.png')
+    #cam2.getImage()
+    img2.show()
+    time.sleep(5)
+    oldRGB = colordef(currColor)
+    r = colorRange(oldRGB[0], colorVariant)
+    g = colorRange(oldRGB[1], colorVariant)
+    b = colorRange(oldRGB[2], colorVariant)
+    
+    for i in range (r[0], r[1]):
+        for j in range (g[0], g[1]):
+            for k in range (b[0], b[1]):
+                colore = (i, j, k)
+                white_distance = img2.colorDistance(colore).invert()
+                blobs = white_distance.findBlobs()
+                newRGB = colordef(newColor)
+                blobs.draw(color= (newRGB[0], newRGB[1], newRGB[2]), width=-18)
+    d = white_distance.show()
+    time.sleep(8)
+    white_distance.save('image.png')
+    d.quit()
+
+
+     
+    qrgen = Button(middleFrame, font = myFont, text = "Generate QR code", command = generate_qr, bg = "black", fg = "white")
+    qrgen.pack(side = LEFT, fill = X)
+
+    
+
+def colordef(i):
+
+    i = i.lower()
+    rgbArray = [3]
+    if i == "white":
+        rgbArray = [255, 255, 255]
+    if i == "red":
+        rgbArray = [255, 0, 0]
+    if i == "yellow":
+        rgbArray = [255, 255, 0]
+    if i == "black":
+        rgbArray = [0, 0, 0]
+    if i == "green":
+        rgbArray = [0, 255, 0]
+    
+    return rgbArray
+        
+def readBarcode(result):
+
+    while(result is 0):
+        subprocess.call('raspistill -n -w %s -h %s -o barcode.png' % (640, 480),         shell=True)
+        img = Image('barcode.png')
+        barcode = img.findBarcode()
+        if(barcode is not None):
+            barcode = barcode[0]
+            result = str(barcode.data)
+            barcode = []
+    return result;
+    
+def disp():
+    
+    global other_color
+    global details
+    global more_details
+    global more_detail
+    global color_details
+    result = 0
+    result = readBarcode(result)
